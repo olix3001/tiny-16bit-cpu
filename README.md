@@ -3,9 +3,8 @@
 
 This project aims at desining a custom RISC CPU architecture with the following:
 - Hardware division,
-- Multi-core design,
-- Basic atomic operations (LR, SC, ASWP, AINC, ...),
 - Primitive cache system,
+- Built-in programmable interrupt controller,
 - Possible future SIMD instructions.
 
 ## Current state
@@ -13,8 +12,6 @@ This project aims at desining a custom RISC CPU architecture with the following:
 - [x] Register file
 - [ ] LSU (Load-Store Unit)
 - [ ] PC, CSR, Fetcher & Decoder
-- [ ] Interrupt controller between cores?
-- [ ] Bus arbiter (Round robin)
-- [ ] L2 Cache
-- [ ] ACU (Atomic Control Unit)
-- [ ] SIMD registers and instructions?
+- [ ] Programmable Interrupt controller
+- [ ] Some kind of cache
+- [ ] Multi-core design???
