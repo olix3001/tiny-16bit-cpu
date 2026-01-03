@@ -74,7 +74,7 @@ module alu (
                 val = ra;
                 count = 0;
                 
-                if (val[15:8] == 8'b0) begin count += 8; val <<= 8; end
+                if (val[15:8] == 8'b0)  begin count += 8; val <<= 8; end
                 if (val[15:12] == 4'b0) begin count += 4; val <<= 4; end
                 if (val[15:14] == 2'b0) begin count += 2; val <<= 2; end
                 if (val[15] == 1'b0)    begin count += 1; end
