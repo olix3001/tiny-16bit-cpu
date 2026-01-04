@@ -31,6 +31,7 @@ async def test_alu_all_ops(dut):
 
     # Reset
     dut.reset.value = 1
+    dut.enable.value = 1
     await Timer(20, unit="ns")
     dut.reset.value = 0
     await RisingEdge(dut.clk)

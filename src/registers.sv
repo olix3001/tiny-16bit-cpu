@@ -21,22 +21,22 @@ module registers (
 
     always_ff @(posedge clk) begin
         if (reset) begin
-            registers[0] <= 8'b0;
-            registers[1] <= 8'b0;
-            registers[2] <= 8'b0;
-            registers[3] <= 8'b0;
-            registers[4] <= 8'b0;
-            registers[5] <= 8'b0;
-            registers[6] <= 8'b0;
-            registers[7] <= 8'b0;
-            registers[8] <= 8'b0;
-            registers[9] <= 8'b0;
-            registers[10] <= 8'b0;
-            registers[11] <= 8'b0;
-            registers[12] <= 8'b0;
-            registers[13] <= 8'b0;
-            registers[14] <= 8'b0;
-            registers[15] <= 8'b0;
+            registers[0] <= 16'b0;
+            registers[1] <= 16'b0;
+            registers[2] <= 16'b0;
+            registers[3] <= 16'b0;
+            registers[4] <= 16'b0;
+            registers[5] <= 16'b0;
+            registers[6] <= 16'b0;
+            registers[7] <= 16'b0;
+            registers[8] <= 16'b0;
+            registers[9] <= 16'b0;
+            registers[10] <= 16'b0;
+            registers[11] <= 16'b0;
+            registers[12] <= 16'b0;
+            registers[13] <= 16'b0;
+            registers[14] <= 16'b0;
+            registers[15] <= 16'b0;
         end else begin
             if (en_read) begin
                 ra <= registers[ra_addr];

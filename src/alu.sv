@@ -1,15 +1,16 @@
 `default_nettype none
 
 typedef enum logic [3:0] { 
-    ADD, SUB, MUL, DIV,
-    MOD, SHL, SHR, AND,
-    OR , XOR, NOR, POPCNT, 
-    CLZ, CTZ, XXX, CMP 
+    ALU_ADD, ALU_SUB, ALU_MUL, ALU_DIV,
+    ALU_MOD, ALU_SHL, ALU_SHR, ALU_AND,
+    ALU_OR , ALU_XOR, ALU_NOR, ALU_POPCNT, 
+    ALU_CLZ, ALU_CTZ, ALU_XXX, ALU_CMP 
 } alu_op_t;
 
 module alu (
     input wire clk,
     input wire reset,
+    input wire enable,
 
     input alu_op_t op, // TODO: Add bitwise operators, popcnt, trailing/leading zeros, etc...
     input logic [15:0] ra,
@@ -48,56 +49,57 @@ module alu (
 
     always_ff @(posedge clk) begin
         if (reset) alu_reg <= 16'b0;
+        else if (enable) begin
+            case (op)
+                ALU_ADD: alu_reg <= ra + rb;
+                ALU_SUB: alu_reg <= diff[15:0];
+                ALU_MUL: alu_reg <= ra * rb;
+                ALU_DIV: alu_reg <= q_out;
+                ALU_MOD: alu_reg <= r_out;
+                ALU_SHL: alu_reg <= ra << rb;
+                ALU_SHR: alu_reg <= ra >> rb;
+                ALU_AND: alu_reg <= ra & rb;
+                ALU_OR : alu_reg <= ra | rb;
+                ALU_XOR: alu_reg <= ra ^ rb;
+                ALU_NOR: alu_reg <= ~(ra | rb);
+                ALU_POPCNT: begin : pop_logic
+                    logic [4:0] count_temp;
+                    count_temp = 5'b0;
+                    for (i = 0; i < 16; i = i + 1)
+                        count_temp = count_temp + ra[i];
+                    alu_reg <= {11'b0, count_temp};
+                end
+                ALU_CLZ: begin : clz_logic
+                    logic [15:0] val;
+                    logic [3:0] count;
+                    val = ra;
+                    count = 0;
+                    
+                    if (val[15:8] == 8'b0)  begin count += 8; val <<= 8; end
+                    if (val[15:12] == 4'b0) begin count += 4; val <<= 4; end
+                    if (val[15:14] == 2'b0) begin count += 2; val <<= 2; end
+                    if (val[15] == 1'b0)    begin count += 1; end
+                    
+                    alu_reg <= (ra == 0) ? 16 : {12'b0, count};
+                end
+                ALU_CTZ: begin : ctz_logic
+                    logic [15:0] v;
+                    logic [3:0] c;
+                    
+                    v = ra;
+                    c = 0;
 
-        case (op)
-            ADD: alu_reg <= ra + rb;
-            SUB: alu_reg <= diff[15:0];
-            MUL: alu_reg <= ra * rb;
-            DIV: alu_reg <= q_out;
-            MOD: alu_reg <= r_out;
-            SHL: alu_reg <= ra << rb;
-            SHR: alu_reg <= ra >> rb;
-            AND: alu_reg <= ra & rb;
-            OR : alu_reg <= ra | rb;
-            XOR: alu_reg <= ra ^ rb;
-            NOR: alu_reg <= ~(ra | rb);
-            POPCNT: begin : pop_logic
-                logic [4:0] count_temp;
-                count_temp = 5'b0;
-                for (i = 0; i < 16; i = i + 1)
-                    count_temp = count_temp + ra[i];
-                alu_reg <= {11'b0, count_temp};
-            end
-            CLZ: begin : clz_logic
-                logic [15:0] val;
-                logic [3:0] count;
-                val = ra;
-                count = 0;
-                
-                if (val[15:8] == 8'b0)  begin count += 8; val <<= 8; end
-                if (val[15:12] == 4'b0) begin count += 4; val <<= 4; end
-                if (val[15:14] == 2'b0) begin count += 2; val <<= 2; end
-                if (val[15] == 1'b0)    begin count += 1; end
-                
-                alu_reg <= (ra == 0) ? 16 : {12'b0, count};
-            end
-            CTZ: begin : ctz_logic
-                logic [15:0] v;
-                logic [3:0] c;
-                
-                v = ra;
-                c = 0;
+                    if (v[7:0] == 8'b0) begin c += 8; v >>= 8; end
+                    if (v[3:0] == 4'b0) begin c += 4; v >>= 4; end
+                    if (v[1:0] == 2'b0) begin c += 2; v >>= 2; end
+                    if (v[0] == 1'b0)   begin c += 1; end
 
-                if (v[7:0] == 8'b0) begin c += 8; v >>= 8; end
-                if (v[3:0] == 4'b0) begin c += 4; v >>= 4; end
-                if (v[1:0] == 2'b0) begin c += 2; v >>= 2; end
-                if (v[0] == 1'b0)   begin c += 1; end
-
-                alu_reg <= (ra == 16'b0) ? 16'd16 : {12'b0, c};
-            end
-            XXX: alu_reg <= alu_reg;
-            CMP: alu_reg <= {13'b0, (!diff_borrow & !diff_zero), diff_zero, diff_borrow};
-        endcase
+                    alu_reg <= (ra == 16'b0) ? 16'd16 : {12'b0, c};
+                end
+                ALU_XXX: alu_reg <= alu_reg;
+                ALU_CMP: alu_reg <= {13'b0, (!diff_borrow & !diff_zero), diff_zero, diff_borrow};
+            endcase
+        end
     end
 endmodule
 
